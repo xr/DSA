@@ -3,6 +3,7 @@ import time
 from utils import *
 from bubble import bubbleSort
 from selection import selectionSort
+from insertion import insertionSort
 
 # Load related files
 with open('testset/smallList.txt', 'r') as f:
@@ -16,38 +17,64 @@ class TestUtils(unittest.TestCase):
         a = [1,2,3]
         self.assertEqual(swap(0,1, a), [2,1,3])
 
+# compare with the built in python sort function
+class TestPythonBuiltInSort(unittest.TestCase):
+    def test_python_build_in_sort_func_small_collection(self):
+        start_time = time.time()
+        result = sorted(SMALL_COLLECTION)
+        print("##Python Sort SC## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, SMALL_COLLECTION_RESULT)
+
 class TestBubbleSort(unittest.TestCase):
     def test_bubbleSort_correctness(self):
         a = [3,5,2,4,8,7,10]
 
         start_time = time.time()
         result = bubbleSort(a)
-        print("// TIME: %s seconds" % (time.time() - start_time))
+        print("##Bubble Sort C ## ==> TIME: %s seconds\n" % (time.time() - start_time))
 
         self.assertEqual(result, [2,3,4,5,7,8,10])
 
     def test_bubbleSort_small_collection(self):
         start_time = time.time()
         result = bubbleSort(SMALL_COLLECTION)
-        print("// TIME: %s seconds" % (time.time() - start_time))
+        print("##Bubble Sort SC ## ==> TIME: %s seconds\n" % (time.time() - start_time))
         self.assertEqual(result, SMALL_COLLECTION_RESULT)
         
+
+
 class TestSelectionSort(unittest.TestCase):
     def test_selectionSort_correctness(self):
         a = [3,5,2,4,8,7,10]
 
         start_time = time.time()
         result = selectionSort(a)
-        print("// TIME: %s seconds" % (time.time() - start_time))
+        print("##Selection Sort C ## ==> TIME: %s seconds\n" % (time.time() - start_time))
 
         self.assertEqual(result, [2,3,4,5,7,8,10])
 
     def test_selectionSort_small_collection(self):
         start_time = time.time()
         result = selectionSort(SMALL_COLLECTION)
-        print("// TIME: %s seconds" % (time.time() - start_time))
+        print("##Selection Sort SC ## ==> TIME: %s seconds\n" % (time.time() - start_time))
         self.assertEqual(result, SMALL_COLLECTION_RESULT)
 
 
+class TestInsertionSort(unittest.TestCase):
+    def test_insertionSort_correctness(self):
+        a = [3,5,2,4,8,7,10]
+
+        start_time = time.time()
+        result = insertionSort(a)
+        print("##Insertion Sort C ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+
+        self.assertEqual(result, [2,3,4,5,7,8,10])
+
+    def test_insertionSort_small_collection(self):
+        start_time = time.time()
+        result = insertionSort(SMALL_COLLECTION)
+        print("##Insertion Sort SC ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, SMALL_COLLECTION_RESULT)
+
 if __name__ == '__main__':
-    unittest.main(verbosity=2)
+    unittest.main(verbosity=1)
