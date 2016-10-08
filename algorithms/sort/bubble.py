@@ -1,4 +1,6 @@
-def sort(arr):
+from utils import swap
+
+def bubbleSort(arr):
     arrLengh = len(arr)
     end = arrLengh - 1
     while end > 0:
@@ -7,10 +9,4 @@ def sort(arr):
                 if arr[i] > arr[i + 1]:
                     swap(i, i + 1, arr)
         end -= 1
-    return arr
-
-def swap(a, b, arr):
-    temp = arr[a]
-    arr[a] = arr[b]
-    arr[b] = temp
     return arr
