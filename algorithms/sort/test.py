@@ -4,6 +4,7 @@ from utils import *
 from bubble import bubbleSort
 from selection import selectionSort
 from insertion import insertionSort
+from merge import mergeSort
 
 # Load related files
 with open('testset/smallList.txt', 'r') as f:
@@ -81,6 +82,22 @@ class TestInsertionSort(unittest.TestCase):
         start_time = time.time()
         result = insertionSort(SMALL_COLLECTION)
         print("##Insertion Sort <1000> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, SMALL_COLLECTION_RESULT)
+
+class TestMergeSort(unittest.TestCase):
+    def test_mergeSort_correctness(self):
+        a = [3,5,2,4,8,7,10,43,1,9]
+
+        start_time = time.time()
+        result = mergeSort(a)
+        print("##Merge Sort <10> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+
+        self.assertEqual(result, [1,2,3,4,5,7,8,9,10,43])
+
+    def test_mergeSort_small_collection(self):
+        start_time = time.time()
+        result = mergeSort(SMALL_COLLECTION)
+        print("##Merge Sort <1000> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
         self.assertEqual(result, SMALL_COLLECTION_RESULT)
 
 if __name__ == '__main__':
