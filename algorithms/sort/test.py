@@ -5,6 +5,7 @@ from bubble import bubbleSort
 from selection import selectionSort
 from insertion import insertionSort
 from merge import mergeSort
+from quick import quickSort
 
 # Load related files
 with open('testset/smallList.txt', 'r') as f:
@@ -98,6 +99,22 @@ class TestMergeSort(unittest.TestCase):
         start_time = time.time()
         result = mergeSort(SMALL_COLLECTION)
         print("##Merge Sort <1000> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, SMALL_COLLECTION_RESULT)
+
+class TestQuickSort(unittest.TestCase):
+    def test_quickSort_correctness(self):
+        a = [3,5,2,4,8,7,10,43,1,9]
+
+        start_time = time.time()
+        result = quickSort(a)
+        print("##Quick Sort <10> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+
+        self.assertEqual(result, [1,2,3,4,5,7,8,9,10,43])
+
+    def test_quickSort_small_collection(self):
+        start_time = time.time()
+        result = quickSort(SMALL_COLLECTION)
+        print("##Quick Sort <1000> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
         self.assertEqual(result, SMALL_COLLECTION_RESULT)
 
 if __name__ == '__main__':
