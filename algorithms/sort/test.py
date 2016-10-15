@@ -1,4 +1,5 @@
 import unittest
+import random
 import time
 from utils import *
 from bubble import bubbleSort
@@ -13,6 +14,49 @@ with open('testset/smallList.txt', 'r') as f:
 
 with open('testset/smallListResult.txt', 'r') as f:
     SMALL_COLLECTION_RESULT = [int(line.rstrip()) for line in f]
+
+class TestSortWithBigRandomAmount(unittest.TestCase):
+
+    def test_10000_quick(self):
+        LIST_10K = random.sample(range(10000), 10000)
+        LIST_10K_ANSWER = sorted(LIST_10K)
+        start_time = time.time()
+        result = quickSort(LIST_10K)
+        print("##Quick Sort <10k> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, LIST_10K_ANSWER)
+
+    def test_10000_merge(self):
+        LIST_10K = random.sample(range(10000), 10000)
+        LIST_10K_ANSWER = sorted(LIST_10K)
+        start_time = time.time()
+        result = mergeSort(LIST_10K)
+        print("##Merge Sort <10k> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, LIST_10K_ANSWER)
+
+    def test_10000_bubble(self):
+        LIST_10K = random.sample(range(10000), 10000)
+        LIST_10K_ANSWER = sorted(LIST_10K)
+        start_time = time.time()
+        result = bubbleSort(LIST_10K)
+        print("##Bubble Sort <10k> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, LIST_10K_ANSWER)
+
+    def test_10000_insertion(self):
+        LIST_10K = random.sample(range(10000), 10000)
+        LIST_10K_ANSWER = sorted(LIST_10K)
+        start_time = time.time()
+        result = insertionSort(LIST_10K)
+        print("##Insertion Sort <10k> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, LIST_10K_ANSWER)
+
+    def test_10000_selection(self):
+        LIST_10K = random.sample(range(10000), 10000)
+        LIST_10K_ANSWER = sorted(LIST_10K)
+        start_time = time.time()
+        result = selectionSort(LIST_10K)
+        print("##Insertion Sort <10k> ## ==> TIME: %s seconds\n" % (time.time() - start_time))
+        self.assertEqual(result, LIST_10K_ANSWER)
+
 
 class TestUtils(unittest.TestCase):
     def test_swap(self):
