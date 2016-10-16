@@ -52,12 +52,10 @@ class BST:
 	def get(self, key):
 		res = self._get(key, self.root)
 		if res:
-			return res.payload
+			return res
 
 	def _get(self, key, currentNode):
 		if currentNode:
-			print('currentNode.key', currentNode.key)
-			print('key', key)
 			if key == currentNode.key:
 				return currentNode
 			elif key < currentNode.key:
@@ -87,6 +85,66 @@ class BST:
 			else:
 				currentNode.rightChild = TreeNode(key,val,parent=currentNode)
 
+	def remove(self, targetNode):
+		"""
+		case 1, node has no children => remove directly
+		case 2, node has one child => move the child reference to it's parent
+		"""
+		if targetNode.isLeaf():
+			if targetNode.isLeftChild():
+				targetNode.parent.leftChild = None
+			else:
+				targetNode.parent.rightChild = None
+		else:
+			if targetNode.hasLeftChild():
+				# if node has only one left child
+				if not targetNode.hasRightChild():
+					# if current node is left child
+					if targetNode.isLeftChild():
+						targetNode.parent.leftChild = targetNode.leftChild
+						targetNode.leftChild.parent = targetNode.parent
+					elif targetNode.isRightChild():
+						targetNode.parent.rightChild = targetNode.rightChild
+						targetNode.leftChild.parent = targetNode.parent
+					else:
+						targetNode.replaceNodeData(targetNode.leftChild.key, targetNode.leftChild.payload, targetNode.leftChild.leftChild, targetNode.leftChild.rightChild)
+				else:
+					# node has both left and right
+					pass
+
+			if targetNode.hasRightChild():
+				# if node has only one right child
+				if not targetNode.hasLeftChild():
+					# if current node is left child
+					if targetNode.isLeftChild():
+						targetNode.parent.leftChild = targetNode.leftChild
+						targetNode.rightChild.parent = targetNode.parent
+					elif targetNode.isRightChild():
+						targetNode.parent.rightChild = targetNode.rightChild
+						targetNode.rightChild.parent = targetNode.parent
+					else:
+						targetNode.replaceNodeData(targetNode.rightChild.key, targetNode.rightChild.payload, targetNode.rightChild.leftChild, targetNode.rightChild.rightChild)
+				else:
+					# node has both left and right
+					pass
+
+
+	def delete(self, key):
+		if self.size > 1:
+			nodeToRemoved = self._get(key, self.root)
+			if nodeToRemoved:
+				self.remove(nodeToRemoved)
+				self.size -= 1
+			else:
+				raise KeyError('Error, key not in tree')
+		elif self.size == 1:
+			if key == self.root.key:
+				self.root = None
+				self.size -= 1
+		else:
+			raise KeyError('Error, key not in tree')
+
+
 	def __len__(self):
 		return self.size
 
@@ -104,9 +162,24 @@ class BST:
 
 
 a = BST()
-a[1] = 'hello'
-a[2] = 'world'
-print(a.length())
-print(len(a))
-print(a[2])
-print(3 in a)
+a[17] = '17'
+a[5] = '5'
+a[25] = '25'
+a[2] = '2'
+a[11] = '11'
+a[35] = '35'
+
+a[9] = '9'
+
+a[16] = '16'
+
+a[29] = '29'
+a[38] = '38'
+a[7] = '7'
+
+print(a[17].rightChild.payload)
+print(a[35].parent.payload)
+print('remove...')
+a.delete(25)
+print(a[17].rightChild.payload)
+print(a[35].parent.payload)
