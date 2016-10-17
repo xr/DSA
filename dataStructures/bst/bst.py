@@ -41,6 +41,47 @@ class TreeNode:
 		if self.hasRightChild():
 			self.rightChild.parent = self
 
+	def findSuccessor(self):
+		succ = None
+		# if the node has rightChild, then just find the min element in the rightSubTree
+		if self.hasRightChild():
+			succ = self.rightChild.findMin()
+		else:
+			if self.parent:
+				if self.isLeftChild():
+					succ = self.parent
+				else:
+					self.parent.rightChild = None
+					succ = self.parent.findSuccessor()
+					self.parent.rightChild = self
+		return succ
+
+	def findMin(self):
+		minimal = self
+		while minimal.hasLeftChild():
+			minimal = minimal.leftChild
+		return minimal
+
+	def spliceOut(self):
+		if self.isLeaf():
+			if self.isLeftChild():
+				self.parent.leftChild = None
+			else:
+				self.parent.rightChild = None
+		elif self.hasAnyChildren():
+			if self.hasLeftChild():
+				if self.isLeftChild():
+					self.parent.leftChild = self.leftChild
+				else:
+					self.parent.rightChild = self.leftChild
+					self.leftChild.parent = self.parent
+			else:
+				if self.isLeftChild():
+					self.parent.leftChild = self.rightChild
+				else:
+					self.parent.rightChild = self.rightChild
+					self.rightChild.parent = self.parent
+
 class BST:
 	def __init__(self):
 		self.root = None
@@ -85,6 +126,12 @@ class BST:
 			else:
 				currentNode.rightChild = TreeNode(key,val,parent=currentNode)
 
+	def _removeWithTwoChildren(self, targetNode):
+		succ = targetNode.findSuccessor()
+		succ.spliceOut()
+		targetNode.key = succ.key
+		targetNode.payload = succ.payload
+
 	def remove(self, targetNode):
 		"""
 		case 1, node has no children => remove directly
@@ -96,37 +143,31 @@ class BST:
 			else:
 				targetNode.parent.rightChild = None
 		else:
-			if targetNode.hasLeftChild():
+			if targetNode.hasLeftChild() and not targetNode.hasRightChild():
 				# if node has only one left child
-				if not targetNode.hasRightChild():
-					# if current node is left child
-					if targetNode.isLeftChild():
-						targetNode.parent.leftChild = targetNode.leftChild
-						targetNode.leftChild.parent = targetNode.parent
-					elif targetNode.isRightChild():
-						targetNode.parent.rightChild = targetNode.rightChild
-						targetNode.leftChild.parent = targetNode.parent
-					else:
-						targetNode.replaceNodeData(targetNode.leftChild.key, targetNode.leftChild.payload, targetNode.leftChild.leftChild, targetNode.leftChild.rightChild)
+				if targetNode.isLeftChild():
+					targetNode.parent.leftChild = targetNode.leftChild
+					targetNode.leftChild.parent = targetNode.parent
+				elif targetNode.isRightChild():
+					targetNode.parent.rightChild = targetNode.rightChild
+					targetNode.leftChild.parent = targetNode.parent
 				else:
-					# node has both left and right
-					pass
+					targetNode.replaceNodeData(targetNode.leftChild.key, targetNode.leftChild.payload, targetNode.leftChild.leftChild, targetNode.leftChild.rightChild)
 
-			if targetNode.hasRightChild():
+			if targetNode.hasRightChild() and not targetNode.hasLeftChild():
 				# if node has only one right child
-				if not targetNode.hasLeftChild():
-					# if current node is left child
-					if targetNode.isLeftChild():
-						targetNode.parent.leftChild = targetNode.leftChild
-						targetNode.rightChild.parent = targetNode.parent
-					elif targetNode.isRightChild():
-						targetNode.parent.rightChild = targetNode.rightChild
-						targetNode.rightChild.parent = targetNode.parent
-					else:
-						targetNode.replaceNodeData(targetNode.rightChild.key, targetNode.rightChild.payload, targetNode.rightChild.leftChild, targetNode.rightChild.rightChild)
+				# if current node is left child
+				if targetNode.isLeftChild():
+					targetNode.parent.leftChild = targetNode.leftChild
+					targetNode.rightChild.parent = targetNode.parent
+				elif targetNode.isRightChild():
+					targetNode.parent.rightChild = targetNode.rightChild
+					targetNode.rightChild.parent = targetNode.parent
 				else:
-					# node has both left and right
-					pass
+					targetNode.replaceNodeData(targetNode.rightChild.key, targetNode.rightChild.payload, targetNode.rightChild.leftChild, targetNode.rightChild.rightChild)
+
+			if targetNode.hasRightChild() and targetNode.hasLeftChild():
+				self._removeWithTwoChildren(targetNode)
 
 
 	def delete(self, key):
@@ -164,22 +205,22 @@ class BST:
 a = BST()
 a[17] = '17'
 a[5] = '5'
-a[25] = '25'
+a[35] = '35'
 a[2] = '2'
 a[11] = '11'
-a[35] = '35'
+a[29] = '29'
 
+a[38] = '38'
 a[9] = '9'
-
 a[16] = '16'
 
-a[29] = '29'
-a[38] = '38'
 a[7] = '7'
+a[8] = '8'
 
-print(a[17].rightChild.payload)
-print(a[35].parent.payload)
-print('remove...')
-a.delete(25)
-print(a[17].rightChild.payload)
-print(a[35].parent.payload)
+print(a[9].leftChild.payload)
+print(a[7].parent.payload)
+print(a[17].leftChild.payload)
+a.delete(5)
+print(a[9].leftChild.payload)
+print(a[7].parent.payload)
+print(a[17].leftChild.payload)
