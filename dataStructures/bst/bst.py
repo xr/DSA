@@ -1,6 +1,5 @@
 class TreeNode:
-	def __init__(self,key,val,left=None,right=None,
-									   parent=None):
+	def __init__(self, key, val, left=None, right=None, parent=None):
 		self.key = key
 		self.payload = val
 		self.leftChild = left
@@ -81,6 +80,16 @@ class TreeNode:
 				else:
 					self.parent.rightChild = self.rightChild
 					self.rightChild.parent = self.parent
+
+	def __iter__(self):
+		if self:
+			if self.hasLeftChild():
+				for elem in self.leftChild:
+					yield elem
+			yield self.key
+			if self.hasRightChild():
+				for elem in self.rightChild:
+					yield elem
 
 class BST:
 	def __init__(self):
@@ -189,11 +198,17 @@ class BST:
 	def __len__(self):
 		return self.size
 
-	def __setitem__(self,k,v):
+	def __setitem__(self, k, v):
 		self.put(k,v)
 
-	def __getitem__(self,key):
+	def __getitem__(self, key):
 		return self.get(key)
+
+	def __delitem__(self, key):
+		self.delete(key)
+
+	def __iter__(self):
+		return self.root.__iter__()
 
 	def __contains__(self,key):
 		if self._get(key,self.root):
@@ -216,7 +231,8 @@ a[16] = '16'
 
 a[7] = '7'
 a[8] = '8'
-
+for x in a:
+	print(x)
 print(a[9].leftChild.payload)
 print(a[7].parent.payload)
 print(a[17].leftChild.payload)
