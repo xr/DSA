@@ -218,25 +218,25 @@ class BST:
 
 
 a = BST()
-a[17] = '17'
-a[5] = '5'
-a[35] = '35'
-a[2] = '2'
-a[11] = '11'
-a[29] = '29'
+a[17] = '17a'
+a[5] = '5a'
+a[35] = '35a'
+a[2] = '2a'
+a[11] = '11a'
+a[29] = '29a'
 
-a[38] = '38'
-a[9] = '9'
-a[16] = '16'
+a[38] = '38a'
+a[9] = '9a'
+a[16] = '16a'
 
-a[7] = '7'
-a[8] = '8'
+a[7] = '7a'
+a[8] = '8a'
 for x in a:
 	print(x)
-print(a[9].leftChild.payload)
-print(a[7].parent.payload)
-print(a[17].leftChild.payload)
-a.delete(5)
-print(a[9].leftChild.payload)
-print(a[7].parent.payload)
-print(a[17].leftChild.payload)
+# print(a[9].leftChild.payload)
+# print(a[7].parent.payload)
+# print(a[17].leftChild.payload)
+# a.delete(5)
+# print(a[9].leftChild.payload)
+# print(a[7].parent.payload)
+# print(a[17].leftChild.payload)
