@@ -1,242 +1,218 @@
-class TreeNode:
-	def __init__(self, key, val, left=None, right=None, parent=None):
-		self.key = key
-		self.payload = val
-		self.leftChild = left
-		self.rightChild = right
-		self.parent = parent
+class BSTNode:
+    """
+    Represents nodes in a binary search tree.
+    """
+    def __init__(self, key, value=None, parent=None):
+        self.key = key
+        self.value = value
+        self.left = None
+        self.right = None
+        self.parent = parent
 
-	def hasLeftChild(self):
-		return self.leftChild
+    def height(self):
+        """Return the height of this node."""
+        left_height = 1 + self.left.height() if self.left else 0
+        right_height = 1 + self.right.height() if self.right else 0
+        return max(left_height, right_height)
 
-	def hasRightChild(self):
-		return self.rightChild
+    def isLeftChild(self):
+        return self.parent and self.parent.left == self
 
-	def isLeftChild(self):
-		return self.parent and self.parent.leftChild == self
+    def isRightChild(self):
+        return self.parent and self.parent.right == self
 
-	def isRightChild(self):
-		return self.parent and self.parent.rightChild == self
+    def _findMin(self):
+        if self.left:
+            return self.left._findMin()
+        else:
+            return self
 
-	def isRoot(self):
-		return not self.parent
+    def __repr__(self):
+        return "<BSTNode: key={!r}, value={!r}>".format(self.key, self.value)
 
-	def isLeaf(self):
-		return not (self.rightChild or self.leftChild)
 
-	def hasAnyChildren(self):
-		return self.rightChild or self.leftChild
+class BSTException(Exception):
+    pass
 
-	def hasBothChildren(self):
-		return self.rightChild and self.leftChild
-
-	def replaceNodeData(self,key,value,lc,rc):
-		self.key = key
-		self.payload = value
-		self.leftChild = lc
-		self.rightChild = rc
-		if self.hasLeftChild():
-			self.leftChild.parent = self
-		if self.hasRightChild():
-			self.rightChild.parent = self
-
-	def findSuccessor(self):
-		succ = None
-		# if the node has rightChild, then just find the min element in the rightSubTree
-		if self.hasRightChild():
-			succ = self.rightChild.findMin()
-		else:
-			if self.parent:
-				if self.isLeftChild():
-					succ = self.parent
-				else:
-					self.parent.rightChild = None
-					succ = self.parent.findSuccessor()
-					self.parent.rightChild = self
-		return succ
-
-	def findMin(self):
-		minimal = self
-		while minimal.hasLeftChild():
-			minimal = minimal.leftChild
-		return minimal
-
-	def spliceOut(self):
-		if self.isLeaf():
-			if self.isLeftChild():
-				self.parent.leftChild = None
-			else:
-				self.parent.rightChild = None
-		elif self.hasAnyChildren():
-			if self.hasLeftChild():
-				if self.isLeftChild():
-					self.parent.leftChild = self.leftChild
-				else:
-					self.parent.rightChild = self.leftChild
-					self.leftChild.parent = self.parent
-			else:
-				if self.isLeftChild():
-					self.parent.leftChild = self.rightChild
-				else:
-					self.parent.rightChild = self.rightChild
-					self.rightChild.parent = self.parent
-
-	def __iter__(self):
-		if self:
-			if self.hasLeftChild():
-				for elem in self.leftChild:
-					yield elem
-			yield self.key
-			if self.hasRightChild():
-				for elem in self.rightChild:
-					yield elem
 
 class BST:
-	def __init__(self):
-		self.root = None
-		self.size = 0
+    """
+    Simple recursive binary search tree implementation.
+    """
+    def __init__(self, NodeClass=BSTNode):
+        self.BSTNode = NodeClass
+        self.root = None
+        self.nodes = 0
+        # Updated after each call to insert
+        self.newest_node = None
 
-	def length(self):
-		return self.size
+    def find(self, find_key):
+        """Return node with key find_key if it exists. If not, return None. """
+        return self._findhelp(self.root, find_key)
 
-	def get(self, key):
-		res = self._get(key, self.root)
-		if res:
-			return res
+    def insert(self, new_key, value=None):
+        """Insert a new node with key new_key into this BST,
+        increase node count by one and return the inserted node."""
+        if self.find(new_key) is not None:
+            raise KeyError("This BST already contains key {0!r}".format(new_key))
+        self.root = self._inserthelp(self.root, new_key, value, None)
+        self.nodes += 1
+        return self.newest_node
 
-	def _get(self, key, currentNode):
-		if currentNode:
-			if key == currentNode.key:
-				return currentNode
-			elif key < currentNode.key:
-				return self._get(key, currentNode.leftChild)
-			elif key > currentNode.key:
-				return self._get(key, currentNode.rightChild)
+    def height(self):
+        """Return the height of this tree."""
+        return self.root.height() if self.root else -1
 
-	def put(self,key,val):
-		if self.root:
-			self._put(key,val,self.root)
-		else:
-			self.root = TreeNode(key,val)
-		self.size = self.size + 1
+    def __iter__(self):
+        """Return an iterator of the keys of this tree in sorted order."""
+        for node in self._visit_inorder(self.root):
+            yield node.key
 
-	def _put(self,key,val,currentNode):
-		if key < currentNode.key:
-			if currentNode.hasLeftChild():
-				self._put(key,val,currentNode.leftChild)
-			else:
-				currentNode.leftChild = TreeNode(key,val,parent=currentNode)
-		else:
-			if currentNode.hasRightChild():
-				if currentNode.key == key:
-					currentNode.replaceNodeData(key, val, currentNode.leftChild, currentNode.rightChild)
-				else:
-					self._put(key,val,currentNode.rightChild)
-			else:
-				currentNode.rightChild = TreeNode(key,val,parent=currentNode)
-
-	def _removeWithTwoChildren(self, targetNode):
-		succ = targetNode.findSuccessor()
-		succ.spliceOut()
-		targetNode.key = succ.key
-		targetNode.payload = succ.payload
-
-	def remove(self, targetNode):
-		"""
-		case 1, node has no children => remove directly
-		case 2, node has one child => move the child reference to it's parent
-		"""
-		if targetNode.isLeaf():
-			if targetNode.isLeftChild():
-				targetNode.parent.leftChild = None
-			else:
-				targetNode.parent.rightChild = None
-		else:
-			if targetNode.hasLeftChild() and not targetNode.hasRightChild():
-				# if node has only one left child
-				if targetNode.isLeftChild():
-					targetNode.parent.leftChild = targetNode.leftChild
-					targetNode.leftChild.parent = targetNode.parent
-				elif targetNode.isRightChild():
-					targetNode.parent.rightChild = targetNode.rightChild
-					targetNode.leftChild.parent = targetNode.parent
-				else:
-					targetNode.replaceNodeData(targetNode.leftChild.key, targetNode.leftChild.payload, targetNode.leftChild.leftChild, targetNode.leftChild.rightChild)
-
-			if targetNode.hasRightChild() and not targetNode.hasLeftChild():
-				# if node has only one right child
-				# if current node is left child
-				if targetNode.isLeftChild():
-					targetNode.parent.leftChild = targetNode.leftChild
-					targetNode.rightChild.parent = targetNode.parent
-				elif targetNode.isRightChild():
-					targetNode.parent.rightChild = targetNode.rightChild
-					targetNode.rightChild.parent = targetNode.parent
-				else:
-					targetNode.replaceNodeData(targetNode.rightChild.key, targetNode.rightChild.payload, targetNode.rightChild.leftChild, targetNode.rightChild.rightChild)
-
-			if targetNode.hasRightChild() and targetNode.hasLeftChild():
-				self._removeWithTwoChildren(targetNode)
+    def __len__(self):
+        return self.nodes
 
 
-	def delete(self, key):
-		if self.size > 1:
-			nodeToRemoved = self._get(key, self.root)
-			if nodeToRemoved:
-				self.remove(nodeToRemoved)
-				self.size -= 1
-			else:
-				raise KeyError('Error, key not in tree')
-		elif self.size == 1:
-			if key == self.root.key:
-				self.root = None
-				self.size -= 1
-		else:
-			raise KeyError('Error, key not in tree')
+    def remove(self, key):
+        nodeToBeRemoved = self.find(key)
+        if nodeToBeRemoved:
+            if self.nodes > 1:
+                self._removeHelper(nodeToBeRemoved)
+                self.nodes -= 1
+                return nodeToBeRemoved
+            elif self.nodes == 1:
+                if self.root.key == key:
+                    self.root = None
+                    self.nodes -= 1
+                    return nodeToBeRemoved
+
+    def _removeHelper(self, targetNode):
+        if not targetNode.right and not targetNode.left:
+            if targetNode.isLeftChild():
+                targetNode.parent.left = None
+            else:
+                targetNode.parent.right = None
+
+        elif targetNode.right and targetNode.left:
+            self._removeNodeWithTwoChildren(targetNode)
+
+        elif targetNode.right:
+            self._removeNodeWithRightChild(targetNode)
+
+        elif targetNode.left:
+            self._removeNodeWithLeftChild(targetNode)
 
 
-	def __len__(self):
-		return self.size
+    def _removeNodeWithLeftChild(self, targetNode):
+        if targetNode.parent:
+            if targetNode.isLeftChild():
+                targetNode.parent.left = targetNode.left
+                targetNode.left.parent = targetNode.parent
+                if self.root.left == targetNode:
+                    self.root.left = targetNode.left
+                    targetNode.left.parent = self.root
+            else:
+                targetNode.parent.right = targetNode.left
+                targetNode.left.parent = targetNode.parent
+                if self.root.right == targetNode:
+                    self.root.right = targetNode.left
+                    targetNode.left.parent = self.root
+        else:
+            self.root = targetNode.left
+            targetNode.left.parent = None
 
-	def __setitem__(self, k, v):
-		self.put(k,v)
+    def _removeNodeWithRightChild(self, targetNode):
+        if targetNode.parent:
+            if targetNode.isLeftChild():
+                targetNode.parent.left = targetNode.right
+                targetNode.right.parent = targetNode.parent
+                if self.root.left == targetNode:
+                    self.root.left = targetNode.right
+                    targetNode.right.parent = self.root
+            else:
+                targetNode.parent.right = targetNode.right
+                targetNode.right.parent = targetNode.parent
+                if self.root.right == targetNode:
+                    self.root.right = targetNode.right
+                    targetNode.right.parent = self.root
+        else:
+            self.root = targetNode.right
+            targetNode.right.parent = None
 
-	def __getitem__(self, key):
-		return self.get(key)
+    def _removeNodeWithTwoChildren(self, targetNode):
+        succ = targetNode.right._findMin()
+        if succ.isLeftChild():
+            succ.parent.left = succ.right
+            if succ.right:
+                succ.right.parent = succ.parent
+        else:
+            succ.parent.right = succ.right
+            if succ.right:
+                succ.right.parent = succ.parent
 
-	def __delitem__(self, key):
-		self.delete(key)
+        succ.left = targetNode.left
+        if targetNode.left:
+            targetNode.left.parent = succ
 
-	def __iter__(self):
-		return self.root.__iter__()
+        succ.right = targetNode.right
+        if targetNode.right:
+            targetNode.right.parent = succ
 
-	def __contains__(self,key):
-		if self._get(key,self.root):
-			return True
-		else:
-			return False
+        if targetNode.parent:
+            if targetNode.isLeftChild():
+                targetNode.parent.left = succ
+                succ.parent = targetNode.parent
+                if self.root.left == targetNode:
+                    self.root.left = succ
+                    succ.parent = self.root
+            else:
+                targetNode.parent.right = succ
+                succ.parent = targetNode.parent
+                if self.root.right == targetNode:
+                    self.root.right = succ
+                    succ.parent = self.root
+        else:
+            self.root = succ
+            succ.parent = None
 
+    def _findhelp(self, node, find_key):
+        """Starting from node, search for node with key find_key and return that node.
+        If no node with key find_key exists, return None."""
+        if node is None or find_key == node.key:
+            # End search
+            return node
 
-a = BST()
-a[17] = '17a'
-a[5] = '5a'
-a[35] = '35a'
-a[2] = '2a'
-a[11] = '11a'
-a[29] = '29a'
+        if find_key < node.key:
+            return self._findhelp(node.left, find_key)
+        else:
+            return self._findhelp(node.right, find_key)
 
-a[38] = '38a'
-a[9] = '9a'
-a[16] = '16a'
+    def _inserthelp(self, node, new_key, value, parent):
+        """Starting from node, find an empty spot for the new node and
+        insert it into this BST."""
+        if node is None:
+            # Found an empty spot, create a new node
+            self.newest_node = self.BSTNode(new_key, value, parent)
+            return self.newest_node
 
-a[7] = '7a'
-a[8] = '8a'
-for x in a:
-	print(x)
-# print(a[9].leftChild.payload)
-# print(a[7].parent.payload)
-# print(a[17].leftChild.payload)
-# a.delete(5)
-# print(a[9].leftChild.payload)
-# print(a[7].parent.payload)
-# print(a[17].leftChild.payload)
+        # Implement functionality to recursively insert nodes
+        if new_key < node.key:
+            node.left = self._inserthelp(node.left, new_key, value, node)
+        else:
+            node.right = self._inserthelp(node.right, new_key, value, node)
+
+        return node
+
+    def _visit_inorder(self, node):
+        """Return an iterator of the nodes of this tree in inorder starting at node."""
+        if node is None:
+            return
+
+        # Implement this method to return an iterator (a list will do also)
+        # yielding the nodes of this tree in inorder.
+        if node.left:
+            for elem in self._visit_inorder(node.left):
+                yield elem
+        yield node
+        if node.right:
+            for elem in self._visit_inorder(node.right):
+                yield elem
