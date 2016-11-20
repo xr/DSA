@@ -7,7 +7,7 @@ class BinHeap:
 
 	def percUp(self, i):
 		while i // 2 > 0:
-			if self.heapList[i] < self.heapList[i // 2]:
+			if self.heapList[i]['key'] < self.heapList[i // 2]['key']:
 				temp = self.heapList[i // 2]
 				self.heapList[i // 2] = self.heapList[i]
 				self.heapList[i] = temp
@@ -16,7 +16,7 @@ class BinHeap:
 	def percDown(self, i):
 		while (2*i) <= self.currentSize:
 			mc = self.minChild(i)
-			if self.heapList[i] > self.heapList[mc]:
+			if self.heapList[i]['key'] > self.heapList[mc]['key']:
 				temp = self.heapList[mc]
 				self.heapList[mc] = self.heapList[i]
 				self.heapList[i] = temp
@@ -26,13 +26,16 @@ class BinHeap:
 		if 2*i + 1 > self.currentSize:
 			return 2*i
 		else:
-			if self.heapList[i*2] < self.heapList[i*2 + 1]:
+			if self.heapList[i*2]['key'] < self.heapList[i*2 + 1]['key']:
 				return i*2
 			else:
 				return i*2 + 1
 
-	def insert(self, key):
-		self.heapList.append(key)
+	def insert(self, key, data):
+		self.heapList.append({
+			'key': key,
+			'data': data
+		})
 		self.currentSize += 1
 		self.percUp(self.currentSize)
 
@@ -48,13 +51,13 @@ class BinHeap:
 	def __str__(self):
 		return ','.join(str(v) for v in self.heapList)
 
-bh = BinHeap()
+# bh = BinHeap()
 
-bh.insert(31)
-bh.insert(2)
-bh.insert(13)
-bh.insert(7)
-bh.insert(23)
-bh.insert(1)
+# bh.insert(31,'31data')
+# bh.insert(2, '2data')
+# bh.insert(13, '13data')
+# bh.insert(7, '7data')
+# bh.insert(23, '23data')
+# bh.insert(1, '1data')
 
-print(bh)
+# print(bh)
